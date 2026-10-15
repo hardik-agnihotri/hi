@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hey there... 👋</title>
+    <!-- Tailwind CSS for clean layout utilities -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Plus Jakarta Sans & Outfit for modern, clean typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        outfit: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            purple: '#8B5CF6',
+                            pink: '#EC4899',
+                            amber: '#F59E0B',
+                            teal: '#14B8A6',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+            background-color: #0d0a1a;
+        }
+
+        /* Glassmorphism panel styling */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .glass-button {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.35);
+        }
+
+        .glass-button:active {
+            transform: translateY(1px);
+        }
+
+        /* Gradient glow background spheres */
+        .glow-violet {
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.35) 0%, rgba(0, 0, 0, 0) 70%);
+        }
+        .glow-pink {
+            background: radial-gradient(circle, rgba(236, 72, 153, 0.3) 0%, rgba(0, 0, 0, 0) 70%);
+        }
+        .glow-amber {
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.25) 0%, rgba(0, 0, 0, 0) 70%);
+        }
+
+        /* Float animation for the cute mascot */
+        @keyframes floatCute {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(3deg); }
+        }
+        .animate-float {
+            animation: floatCute 4s ease-in-out infinite;
+        }
+
+        /* Subtle pulse for glow elements */
+        @keyframes softGlow {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.08); }
+        }
+        .animate-soft-glow {
+            animation: softGlow 6s ease-in-out infinite;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-100 flex flex-col justify-between relative selection:bg-pink-500 selection:text-white">
+
+    <!-- Canvas for floating particle background -->
+    <canvas id="particleCanvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
+
+    <!-- Background Glow Blobs -->
+    <div class="fixed top-[-10%] left-[-10%] w-[50vw] h-[50vw] glow-violet blur-3xl pointer-events-none animate-soft-glow"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] glow-pink blur-3xl pointer-events-none animate-soft-glow" style="animation-delay: -3s;"></div>
+    <div class="fixed top-[40%] right-[20%] w-[35vw] h-[35vw] glow-amber blur-3xl pointer-events-none animate-soft-glow" style="animation-delay: -1.5s;"></div>
+
+    <!-- Header bar -->
+    <header class="w-full max-w-md mx-auto px-6 pt-6 pb-2 flex justify-between items-center z-20">
+        <div class="flex items-center space-x-2 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/15">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="text-xs font-medium text-slate-200 tracking-wide">First Impression Vibe</span>
+        </div>
+        
+        <button id="soundToggle" class="glass-button p-2.5 rounded-full text-slate-300 hover:text-white flex items-center justify-center cursor-pointer text-xs" title="Toggle Sound Effects">
+            <i id="soundIcon" class="fa-solid fa-volume-high text-pink-400"></i>
+        </button>
+    </header>
+
+    <!-- Main Mobile Container -->
+    <main class="w-full max-w-md mx-auto px-4 py-4 flex-grow flex flex-col justify-center z-10">
+        
+        <!-- Main Interactive Card -->
+        <div class="glass-panel rounded-3xl p-6 sm:p-8 text-center relative overflow-hidden transition-all duration-300">
+            
+            <!-- Animated Cute Badge Mascot -->
+            <div class="relative inline-block mb-4">
+                <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-purple-500 via-pink-500 to-amber-400 p-0.5 shadow-lg shadow-pink-500/20 animate-float">
+                    <div class="w-full h-full bg-slate-950/80 backdrop-blur-md rounded-[14px] flex items-center justify-center text-3xl">
+                        <span id="mascotEmoji" class="transition-transform duration-300 hover:scale-125 select-none cursor-pointer">👋</span>
+                    </div>
+                </div>
+                <div class="absolute -bottom-1 -right-1 bg-amber-400 text-slate-950 text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
+                    100% Safe
+                </div>
+            </div>
+
+            <!-- Typewriter Heading Area -->
+            <div class="mb-6 min-h-[95px] flex flex-col justify-center">
+                <h1 id="typewriterHeading" class="font-outfit text-3xl font-bold bg-gradient-to-r from-purple-300 via-pink-200 to-amber-200 bg-clip-text text-transparent mb-2"></h1>
+                <p id="typewriterBody" class="text-sm sm:text-base text-slate-300 leading-relaxed font-light"></p>
+            </div>
+
+            <!-- Pick Your Vibe Section -->
+            <div class="space-y-3">
+                <p class="text-xs font-semibold tracking-wider uppercase text-pink-300/80 mb-2">Pick an icebreaker vibe below 👇</p>
+                
+                <div class="grid grid-cols-1 gap-2.5">
+                    <!-- Option 1: Virtual Coffee -->
+                    <button class="vibe-btn glass-button p-3.5 rounded-2xl text-left flex items-center space-x-3 group cursor-pointer" data-vibe="coffee">
+                        <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-lg text-amber-300 group-hover:scale-110 transition-transform">
+                            ☕
+                        </div>
+                        <div class="flex-grow">
+                            <div class="text-xs font-semibold text-slate-200">Virtual Coffee?</div>
+                            <div class="text-[11px] text-slate-400">Low pressure, high cozy energy</div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-xs text-slate-500 group-hover:text-slate-300 transition-colors"></i>
+                    </button>
+
+                    <!-- Option 2: Positive Energy Sparkles -->
+                    <button class="vibe-btn glass-button p-3.5 rounded-2xl text-left flex items-center space-x-3 group cursor-pointer" data-vibe="sparkles">
+                        <div class="w-10 h-10 rounded-xl bg-pink-500/20 border border-pink-500/30 flex items-center justify-center text-lg text-pink-300 group-hover:scale-110 transition-transform">
+                            ✨
+                        </div>
+                        <div class="flex-grow">
+                            <div class="text-xs font-semibold text-slate-200">Just Good Vibes</div>
+                            <div class="text-[11px] text-slate-400">Sending a burst of positive energy</div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-xs text-slate-500 group-hover:text-slate-300 transition-colors"></i>
+                    </button>
+
+                    <!-- Option 3: Song Rec -->
+                    <button class="vibe-btn glass-button p-3.5 rounded-2xl text-left flex items-center space-x-3 group cursor-pointer" data-vibe="music">
+                        <div class="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-lg text-purple-300 group-hover:scale-110 transition-transform">
+                            🎵
+                        </div>
+                        <div class="flex-grow">
+                            <div class="text-xs font-semibold text-slate-200">Quick Song Rec</div>
+                            <div class="text-[11px] text-slate-400">Hear a chill mini tune & song note</div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-xs text-slate-500 group-hover:text-slate-300 transition-colors"></i>
+                    </button>
+
+                    <!-- Option 4: How's your week? Interactive Reply Builder -->
+                    <button class="vibe-btn glass-button p-3.5 rounded-2xl text-left flex items-center space-x-3 group cursor-pointer" data-vibe="question">
+                        <div class="w-10 h-10 rounded-xl bg-teal-500/20 border border-teal-500/30 flex items-center justify-center text-lg text-teal-300 group-hover:scale-110 transition-transform">
+                            ❓
+                        </div>
+                        <div class="flex-grow">
+                            <div class="text-xs font-semibold text-slate-200">How's your week going?</div>
+                            <div class="text-[11px] text-slate-400">Build a quick DM reply to copy back!</div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-xs text-slate-500 group-hover:text-slate-300 transition-colors"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dynamic Interactive Result Container -->
+            <div id="vibeResultCard" class="mt-5 p-4 rounded-2xl bg-white/5 border border-white/10 hidden transform transition-all duration-300 text-left">
+                <div class="flex justify-between items-center mb-2">
+                    <span id="resultTag" class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/30">Result</span>
+                    <button id="closeResult" class="text-slate-400 hover:text-white text-xs cursor-pointer p-1">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                
+                <div id="resultContent" class="text-sm text-slate-200 leading-relaxed"></div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full max-w-md mx-auto p-4 text-center text-[11px] text-slate-400/80 z-20">
+        <p>No pressure, just a friendly hello! Have a great day ✨</p>
+    </footer>
+
+    <!-- Application Script -->
+    <script>
+        // --- 1. Sound Synthesis Engine (Web Audio API) ---
+        let soundEnabled = true;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playPopSound(freq = 440, type = 'sine', duration = 0.12) {
+            if (!soundEnabled) return;
+            try {
+                initAudio();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(freq * 1.5, audioCtx.currentTime + duration);
+                
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {
+                console.log('Audio playback inhibited', e);
+            }
+        }
+
+        function playMelody() {
+            if (!soundEnabled) return;
+            const notes = [329.63, 392.00, 493.88, 587.33, 659.25]; // E4, G4, B4, D5, E5
+            notes.forEach((note, index) => {
+                setTimeout(() => {
+                    playPopSound(note, 'triangle', 0.25);
+                }, index * 120);
+            });
+        }
+
+        // Sound toggle button
+        const soundToggle = document.getElementById('soundToggle');
+        const soundIcon = document.getElementById('soundIcon');
+        soundToggle.addEventListener('click', () => {
+            soundEnabled = !soundEnabled;
+            if (soundEnabled) {
+                soundIcon.className = "fa-solid fa-volume-high text-pink-400";
+                playPopSound(523.25, 'sine', 0.1);
+            } else {
+                soundIcon.className = "fa-solid fa-volume-xmark text-slate-500";
+            }
+        });
+
+
+        // --- 2. Floating Particle Canvas (Interactive) ---
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor(x, y, isSparkle = false) {
+                this.x = x || Math.random() * canvas.width;
+                this.y = y || Math.random() * canvas.height;
+                this.size = isSparkle ? Math.random() * 5 + 3 : Math.random() * 3 + 1;
+                this.speedX = (Math.random() - 0.5) * (isSparkle ? 2.5 : 0.6);
+                this.speedY = (Math.random() - 0.5) * (isSparkle ? 2.5 : 0.6) - (isSparkle ? 0.5 : 0.2);
+                this.opacity = isSparkle ? 1 : Math.random() * 0.5 + 0.2;
+                this.fade = isSparkle ? 0.02 : 0;
+                this.color = ['#EC4899', '#8B5CF6', '#F59E0B', '#14B8A6'][Math.floor(Math.random() * 4)];
+                this.isSparkle = isSparkle;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.isSparkle) {
+                    this.opacity -= this.fade;
+                } else {
+                    if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+                    if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, this.opacity);
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        // Initialize background particles
+        for (let i = 0; i < 35; i++) {
+            particles.push(new Particle());
+        }
+
+        // Add interactive particles on pointer move
+        window.addEventListener('mousemove', (e) => {
+            if (Math.random() > 0.6) {
+                particles.push(new Particle(e.clientX, e.clientY, true));
+            }
+        });
+
+        window.addEventListener('touchmove', (e) => {
+            if (e.touches.length > 0 && Math.random() > 0.4) {
+                let touch = e.touches[0];
+                particles.push(new Particle(touch.clientX, touch.clientY, true));
+            }
+        }, { passive: true });
+
+        function createBurst(x, y, count = 25) {
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle(x, y, true));
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].update();
+                particles[i].draw();
+                if (particles[i].isSparkle && particles[i].opacity <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+
+        // --- 3. Typewriter Animation Logic ---
+        const headingText = "Hey there... 👋";
+        const bodyText = "I know this is a bit out of the blue, but your profile had such good vibes I had to say hi!";
+        
+        const headingEl = document.getElementById('typewriterHeading');
+        const bodyEl = document.getElementById('typewriterBody');
+
+        let headingIdx = 0;
+        let bodyIdx = 0;
+
+        function typeHeading() {
+            if (headingIdx < headingText.length) {
+                headingEl.textContent += headingText.charAt(headingIdx);
+                headingIdx++;
+                if (headingIdx % 2 === 0) playPopSound(300 + headingIdx * 20, 'sine', 0.05);
+                setTimeout(typeHeading, 70);
+            } else {
+                setTimeout(typeBody, 300);
+            }
+        }
+
+        function typeBody() {
+            if (bodyIdx < bodyText.length) {
+                bodyEl.textContent += bodyText.charAt(bodyIdx);
+                bodyIdx++;
+                setTimeout(typeBody, 25);
+            }
+        }
+
+        setTimeout(typeHeading, 400);
+
+
+        // --- 4. Interactive Icebreaker Option Handlers ---
+        const vibeBtns = document.querySelectorAll('.vibe-btn');
+        const resultCard = document.getElementById('vibeResultCard');
+        const resultContent = document.getElementById('resultContent');
+        const resultTag = document.getElementById('resultTag');
+        const closeResult = document.getElementById('closeResult');
+        const mascotEmoji = document.getElementById('mascotEmoji');
+
+        vibeBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const vibe = btn.getAttribute('data-vibe');
+                const rect = btn.getBoundingClientRect();
+                createBurst(rect.left + rect.width / 2, rect.top + rect.height / 2, 20);
+                
+                resultCard.classList.remove('hidden');
+                
+                if (vibe === 'coffee') {
+                    mascotEmoji.textContent = "☕";
+                    resultTag.textContent = "Virtual Coffee Choice";
+                    resultTag.className = "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30";
+                    playPopSound(587.33, 'triangle', 0.15);
+                    
+                    resultContent.innerHTML = `
+                        <p class="mb-2">☕ <strong>Cozy Coffee Vibe:</strong></p>
+                        <p class="text-xs text-slate-300 leading-relaxed mb-3">
+                            Here is a virtual matcha/iced latte! If we ever grab a real one down the road, what's your go-to order?
+                        </p>
+                        <button onclick="copyToClipboard('My coffee order is...')" class="glass-button w-full py-2 px-3 rounded-xl text-xs font-medium text-amber-200 flex items-center justify-center space-x-2">
+                            <i class="fa-regular fa-copy"></i>
+                            <span>Copy Quick Reply Idea</span>
+                        </button>
+                    `;
+                } 
+                else if (vibe === 'sparkles') {
+                    mascotEmoji.textContent = "✨";
+                    resultTag.textContent = "Positive Vibes";
+                    resultTag.className = "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/30";
+                    playPopSound(880, 'sine', 0.2);
+                    createBurst(window.innerWidth / 2, window.innerHeight / 2, 40);
+
+                    resultContent.innerHTML = `
+                        <p class="mb-2">🌟 <strong>Instant Vibe Boost:</strong></p>
+                        <p class="text-xs text-slate-300 leading-relaxed mb-3">
+                            Hope your week is going amazingly well and your coffee stays hot! Sending pure positive energy your way ✨
+                        </p>
+                        <button onclick="copyToClipboard('Thanks for the good vibes! ✨')" class="glass-button w-full py-2 px-3 rounded-xl text-xs font-medium text-pink-200 flex items-center justify-center space-x-2">
+                            <i class="fa-regular fa-copy"></i>
+                            <span>Copy: "Thanks for the good vibes! ✨"</span>
+                        </button>
+                    `;
+                }
+                else if (vibe === 'music') {
+                    mascotEmoji.textContent = "🎵";
+                    resultTag.textContent = "Song Rec Vibe";
+                    resultTag.className = "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30";
+                    playMelody();
+
+                    resultContent.innerHTML = `
+                        <p class="mb-2">🎧 <strong>Song Recommendation:</strong></p>
+                        <p class="text-xs text-slate-300 leading-relaxed mb-3">
+                            Check out <em>"Sunflower" by Post Malone & Swae Lee</em> or <em>"Golden" by Harry Styles</em> for instant good mood energy! What song have you had on repeat lately?
+                        </p>
+                        <button onclick="copyToClipboard('My current favorite song is...')" class="glass-button w-full py-2 px-3 rounded-xl text-xs font-medium text-purple-200 flex items-center justify-center space-x-2">
+                            <i class="fa-regular fa-copy"></i>
+                            <span>Copy Quick Reply Idea</span>
+                        </button>
+                    `;
+                }
+                else if (vibe === 'question') {
+                    mascotEmoji.textContent = "💬";
+                    resultTag.textContent = "Interactive Reply Builder";
+                    resultTag.className = "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/30";
+                    playPopSound(440, 'sine', 0.15);
+
+                    resultContent.innerHTML = `
+                        <p class="mb-2">📝 <strong>Build a friendly DM reply:</strong></p>
+                        <div class="space-y-2 mb-3">
+                            <input id="replyInput" type="text" placeholder="e.g. My week is pretty good! How about yours?" class="w-full px-3 py-2 rounded-xl bg-black/30 border border-white/20 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-teal-400">
+                        </div>
+                        <button id="copyCustomReply" class="glass-button w-full py-2 px-3 rounded-xl text-xs font-medium text-teal-200 flex items-center justify-center space-x-2">
+                            <i class="fa-regular fa-copy"></i>
+                            <span id="copyBtnText">Copy DM Reply</span>
+                        </button>
+                    `;
+
+                    setTimeout(() => {
+                        const copyBtn = document.getElementById('copyCustomReply');
+                        const replyInput = document.getElementById('replyInput');
+                        const copyBtnText = document.getElementById('copyBtnText');
+                        
+                        copyBtn.addEventListener('click', () => {
+                            const val = replyInput.value.trim() || "Hey! My week is going pretty good, thanks for saying hi! 👋";
+                            copyToClipboard(val);
+                            copyBtnText.textContent = "Copied to Clipboard! ✨";
+                            setTimeout(() => { copyBtnText.textContent = "Copy DM Reply"; }, 2000);
+                        });
+                    }, 50);
+                }
+            });
+        });
+
+        closeResult.addEventListener('click', () => {
+            resultCard.classList.add('hidden');
+            mascotEmoji.textContent = "👋";
+            playPopSound(300, 'sine', 0.1);
+        });
+
+        mascotEmoji.addEventListener('click', () => {
+            const emojis = ["👋", "✨", "😊", "☕", "🎧", "🚀", "🌸"];
+            const nextEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+            mascotEmoji.textContent = nextEmoji;
+            playPopSound(600 + Math.random() * 300, 'sine', 0.1);
+            const rect = mascotEmoji.getBoundingClientRect();
+            createBurst(rect.left + rect.width / 2, rect.top + rect.height / 2, 12);
+        });
+
+        // Clipboard Copy Helper
+        function copyToClipboard(text) {
+            const dummy = document.createElement("textarea");
+            document.body.appendChild(dummy);
+            dummy.value = text;
+            dummy.select();
+            document.execCommand("copy");
+            document.body.removeChild(dummy);
+            playPopSound(784, 'sine', 0.15);
+        }
+    </script>
+</body>
+</html>
